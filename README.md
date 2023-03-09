@@ -151,16 +151,16 @@ Custom options：
 Message notification options:    
 - **ddns_ntfy_url** ntfy is a simple HTTP-based pub-sub notification service.    
 Website：https://ntfy.sh/  
-Example：ddns_ntfy_url="http://ntfy.sh/yourtopic"  
+Example：`ddns_ntfy_url="http://ntfy.sh/yourtopic"`  
 - **ddns_bark_url** Bark is an iOS App which allows you to push customed notifications to your iPhone.    
 Website：https://github.com/Finb/bark-server  
-Example：ddns_bark_url="https://api.day.app/yourkey"  
+Example：`ddns_bark_url="https://api.day.app/yourkey"`  
  - **ddns_sct_url** ServerChan, a push service that can be pushed to WeChat.  
 Website： https://sct.ftqq.com/   
-Example：ddns_sct_url="https://sctapi.ftqq.com/yourkey.send"    
+Example：`ddns_sct_url="https://sctapi.ftqq.com/yourkey.send"`    
 - **ddns_pushplus_url** Pushplus, a push service that can be pushed to WeChat.   
 Website：https://www.pushplus.plus/    
-Example：ddns_pushplus_url="http://www.pushplus.plus/send?token=yourkey"     
+Example：`ddns_pushplus_url="http://www.pushplus.plus/send?token=yourkey"`     
 The script only has a few built-in notification options "out of the box". If you want to use your own Webhook, you just need to modify any of the above four notification functions. You can search for push_bark, push_ntfy or push_sct functions in the generated script.     
 
 ## About
