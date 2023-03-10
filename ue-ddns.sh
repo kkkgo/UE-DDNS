@@ -301,6 +301,7 @@ check_push() {
 #func-check_push
 
 push_result() {
+    ddns_newIP=$(echo $ddns_newIP | sed 's/ /_/g' | sed 's/{//g' | sed 's/}//g' | sed 's/"//g')
     #nfty
     if echo $ddns_ntfy_url | grep -Eoq "http"; then
         postData="$ddns_fulldomain"":""$ddns_newIP"
