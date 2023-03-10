@@ -157,10 +157,10 @@ Example：`ddns_sct_url="https://sctapi.ftqq.com/yourkey.send"`
 - **ddns_pushplus_url** Pushplus, a push service that can be pushed to WeChat.   
 Website：https://www.pushplus.plus/    
 Example：`ddns_pushplus_url="http://www.pushplus.plus/send?token=yourkey"`     
-The script only has a few built-in notification options "out of the box". If you want to use your own Webhook, you just need to modify any of the above four notification functions. You can search for push_bark, push_ntfy or push_sct functions in the generated script.     
 - **ddns_dingtalk_url** dingtalk group robot push.Please add keyword: IP     
 Website：https://open.dingtalk.com/document/robots/custom-robot-access/      
 Example：`ddns_dingtalk_url="https://oapi.dingtalk.com/robot/send?access_token=yourkey"`     
+The script only has a few built-in notification options "out of the box". If you want to use your own Webhook, you can search for push_result functions in the generated script.     
 
 ## About
 License：GPLv3   
