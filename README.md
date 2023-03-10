@@ -46,7 +46,7 @@ cloudflare DDNS:
 [2] IPV6 DDNS
 IPV4/IPV6 DDNS?[1]:1
 ```
-Next, according to the DNS service provider you choose, you need to provide the corresponding API KEY, and the wizard will give a url help to apply for API KEY.If you have more than one domain name, you will see the main domain name selection list after entering the key, followed by the sub-domain name selection list. The display effect depends on the API of the DNS service provider.      
+Next, according to the DNS service provider you choose, you need to provide the corresponding API KEY, and the wizard will give a url help to apply for API KEY. If you have more than one domain name, you will see the main domain name selection list after entering the key, followed by the sub-domain name selection list. The display effect depends on the API of the DNS service provider.      
 ```shell
 [help] https://dash.cloudflare.com/profile/api-tokens
 Your cloudflare API TOKEN:***************************
@@ -109,7 +109,7 @@ DDNS script generation completed!
 -rwxrwxrwx 1 root root 12K Mar  8 18:57 myhomeddns.03k.org@cloudflare_IPV4_URL.sh
 ```  
 Finally, you'll get a custom DDNS script in the current directory that you can try to `sh xxxx@xxx.sh` to test it.    
-After the script is generated, you can 'rm ue-ddns.sh'.    
+After the script is generated, you can `rm ue-ddns.sh`.    
 Depending on what DNS service provider you choose and what options you customize, the script looks like this:    
 ```shell
 2023-03-08 23:20:58 CST
@@ -120,10 +120,10 @@ Trying to update: myhomeddns.mytestdomain2023.com -> 218.56.43.21
 Update OK: "type":"A","content":"218.56.43.21","proxiable":true,"proxied":false
 ```
 ## How to deploy the script
-- There is basically a crontab (scheduled task) on Linux systems, assuming that the script has been added with executable permissions:`chmod +x ./ddns.sh`, in `/root/ddns.sh`:   
-Edit cron: `crontab -e`   
- `*/10 * * * * /root/ddns.sh &>/dev/null`    
-It means every 10 minutes. The log will be blocked. Of course, if you need to log, you can redirect directly to the save path.    
+- There is basically a crontab (scheduled task) on Linux systems, assuming that the script has been added with executable permissions:`chmod +x ./ddns.sh`,  in `/root/ddns.sh`:   
+Edit cron: `crontab -e`     
+ `*/10 * * * * /root/ddns.sh &>/dev/null`     
+It means run every 10 minutes. The log will be blocked. Of course, if you need to log, you can redirect directly to the save path.    
 - The hotplug interface can automatically execute the script when the network card IP changes. For example, openwrt, when you choose to get the IP from the network interface, the script will prompt you whether to directly generate the script in the hotplug directory：   
 ```shell
 How to get your new IP ?
@@ -146,7 +146,7 @@ DDNS script generation completed!
 ## Custom Options and Message Notifications
 After the script is generated, you can also adjust some custom options within the generated script.(Region from # Customizable option area to # Customizable option end).  
 Custom options：  
-- **PROXY** Set a proxy for the connection API, such as PROXY="http://192.168.1.100:7890"
+- **PROXY** Set a proxy for the connection API, such as `PROXY="http://192.168.1.100:7890"`
 - **OUT** Set script network traffic to go to which network card, such as OUT="eth0" (Only curl is supported)  
 - **CHECKURL** Set the URL used to detect the IP address. The script has built in some websites to get the IP address. When it fails, it will try to get it in turn.The CHECKURL you set will be tried first.    
 - **ValidateCA** verifies the validity of the certificate and is disabled by default.You need to complete the CA certificate yourself for the local environment, for example, most Linux needs to install the ca-certificates package.  
