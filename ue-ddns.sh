@@ -42,6 +42,9 @@ ValidateCA=0
 # https://www.pushplus.plus/
 # ddns_pushplus_url="http://www.pushplus.plus/send?token=yourkey"
 
+# dingtalk group robot push.
+# https://open.dingtalk.com/document/robots/custom-robot-access/
+# ddns_dingtalk_url="https://oapi.dingtalk.com/robot/send?access_token=yourtoken"
 #Customizable option end
 
 versionUA="github.com/kkkgo/UE-DDNS"
@@ -287,55 +290,44 @@ check_ddns_newIP() {
 }
 #func-check_ddns_newIP
 
-push_ntfy() {
+# check_push $name $msg $succ_code
+check_push() {
+    if echo $2 | grep -q $3 2>&1; then
+        echo $1" push OK."
+    else
+        echo $1" push Failed."$2
+    fi
+}
+#func-check_push
+
+push_result() {
+    #nfty
     if echo $ddns_ntfy_url | grep -Eoq "http"; then
         postData="$ddns_fulldomain"":""$ddns_newIP"
-        push_ntfy_code=$($(genfetchCMD $ddns_ntfy_url useProxy))
+        check_push "Ntfy" $($(genfetchCMD $ddns_ntfy_url useProxy)) "message"
         postData=""
-        if echo $push_ntfy_code | grep -q "message"; then
-            echo "Ntfy push OK."
-        else
-            echo "Ntfy push Failed."$push_ntfy_code
-        fi
     fi
-}
-#func-push_ntfy
-
-push_bark() {
+    #bark
     if echo $ddns_bark_url | grep -Eoq "http"; then
-        push_bark_code=$($(genfetchCMD $ddns_bark_url/$ddns_fulldomain/$ddns_newIP useProxy))
-        if echo $push_bark_code | grep -q "success"; then
-            echo "Bark push OK."
-        else
-            echo "Bark push Failed."
-        fi
+        check_push "Bark" $($(genfetchCMD $ddns_bark_url/$ddns_fulldomain/$ddns_newIP useProxy)) "success"
     fi
-}
-#func-push_bark
-
-push_sct() {
+    #sct
     if echo $ddns_sct_url | grep -Eoq "http"; then
-        push_sct_code=$($(genfetchCMD "$ddns_sct_url""?title=""$ddns_newIP""-""$ddns_fulldomain""&desp=""$filename"":""$ddns_newIP" useProxy))
-        if echo $push_sct_code | grep -q "SUCCESS"; then
-            echo "Sct push OK."
-        else
-            echo "Sct push Failed."$push_sct_code
-        fi
+        check_push "Sct" $($(genfetchCMD "$ddns_sct_url""?title=""$ddns_newIP""-""$ddns_fulldomain""&desp=""$filename"":""$ddns_newIP" useProxy)) "SUCCESS"
     fi
-}
-#func-push_sct
-
-push_pushplus() {
+    #pushplus
     if echo $ddns_pushplus_url | grep -Eoq "http"; then
-        push_pushplus_code=$($(genfetchCMD "$ddns_pushplus_url""&title=""$ddns_newIP""-""$ddns_fulldomain""&content=""$filename"":""$ddns_newIP" useProxy))
-        if echo $push_pushplus_code | grep -q "200"; then
-            echo "pushplus push OK."
-        else
-            echo "pushplus push Failed."$push_pushplus_code
-        fi
+        check_push "Pushplus" $($(genfetchCMD "$ddns_pushplus_url""&title=""$ddns_newIP""-""$ddns_fulldomain""&content=""$filename"":""$ddns_newIP" useProxy)) "200"
+    fi
+    #dingtalk
+    if echo $ddns_dingtalk_url | grep -Eoq "http"; then
+        nowtime=$(date +%s 2>&1)
+        postData="{\"msgtype\":\"markdown\",\"markdown\":{\"title\":\"IP-change-$nowtime-ipIpiP\",\"text\":\"$filename\n>$ddns_newIP\"}}"
+        check_push "Dingtalk" $($(genfetchCMD $ddns_dingtalk_url useProxy) --header "Content-Type:application/json") 'errcode":0'
+        postData=""
     fi
 }
-#func-push_pushplus
+#func-push_result
 
 gen_ddns_script() {
     gen_stage=$1
@@ -402,14 +394,9 @@ gen_ddns_script() {
         echo "ddns_update_""$ddns_provider" >>$ddns_script_filename
         export_func "ddns_result_print" >>$ddns_script_filename
         echo "ddns_result_print" >>$ddns_script_filename
-        export_func "push_ntfy" >>$ddns_script_filename
-        echo "push_ntfy" >>$ddns_script_filename
-        export_func "push_bark" >>$ddns_script_filename
-        echo "push_bark" >>$ddns_script_filename
-        export_func "push_sct" >>$ddns_script_filename
-        echo "push_sct" >>$ddns_script_filename
-        export_func "push_pushplus" >>$ddns_script_filename
-        echo "push_pushplus" >>$ddns_script_filename
+        export_func "check_push" >>$ddns_script_filename
+        export_func "push_result" >>$ddns_script_filename
+        echo "push_result" >>$ddns_script_filename
     fi
     echo "DDNS script generation completed!"
     if [ "$hotplug" = "2" ]; then
@@ -559,8 +546,9 @@ ddns_update_cloudflare() {
     postData="{\"type\":\""$ddns_IPVType"\",\"name\":\""$ddns_record_domain"\",\"content\":\""$ddns_newIP"\",\"ttl\":1,\"proxiable\":true,\"proxied\":"$cloudflare_cdn"}"
     test_ddns_result=$(fetch_cloudflare $cloudflare_zoneid/dns_records/$cloudflare_record_id)
     postData=""
+    postMethod=""
     if echo $test_ddns_result | grep -q 'success":true'; then
-        ddns_result="Update OK: "$(echo $test_ddns_result | grep -Eo '"type":".+"proxied":[^,]+')
+        ddns_result="Update OK: "$(echo $test_ddns_result | grep -Eo '"type":"[^}]+' | head -1)
     else
         error_msg=$(echo $test_ddns_result | grep -Eo "errors[^]]+" | grep -Eo "\{.+")
         ddns_result="Update failed: "$error_msg
@@ -754,6 +742,7 @@ ddns_update_godaddy() {
     postData="[{\"data\":\"$ddns_newIP\",\"name\":\"$ddns_record_domain\",\"port\":65535,\"priority\":0,\"protocol\":\"string\",\"service\":\"string\",\"ttl\":600,\"type\":\"$ddns_IPVType\",\"weight\":0}]"
     test_ddns_result=$(fetch_godaddy $ddns_main_domain/records/$ddns_IPVType/$ddns_record_domain --header "Content-Type:application/json")
     postData=""
+    postMethod=""
     if echo $test_ddns_result | grep -q '"code"'; then
         error_msg=$(echo $test_ddns_result | grep -Eo '"message":"[^}]+"' | head -1)
         ddns_result="Update failed: "$error_msg
@@ -779,6 +768,7 @@ addsub_godaddy() {
     postData="[{\"data\":\"$new_initIP\",\"name\":\"$ddns_newsubdomain\",\"port\":65535,\"priority\":0,\"protocol\":\"string\",\"service\":\"string\",\"ttl\":600,\"type\":\"$ddns_IPVType\",\"weight\":0}]"
     addsub_godaddy_result=$(fetch_godaddy $ddns_main_domain/records/$ddns_IPVType/$ddns_newsubdomain --header "Content-Type:application/json")
     postData=""
+    postMethod=""
     if echo $addsub_godaddy_result | grep -q '"code"'; then
         echo "Creat new subdomain failed.""$(echo $addsub_godaddy_result | grep -Eo '"message":"[^}]+"' | head -1)"
         exit
