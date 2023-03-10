@@ -548,7 +548,7 @@ ddns_update_cloudflare() {
     postData=""
     postMethod=""
     if echo $test_ddns_result | grep -q 'success":true'; then
-        ddns_result="Update OK: "$(echo $test_ddns_result | grep -Eo '"type":"[^}]+' | head -1)
+        ddns_result="Update OK: "$(echo $test_ddns_result | grep -Eo '"type":"[^}]+ttl":[ 0-9]+' | head -1)
     else
         error_msg=$(echo $test_ddns_result | grep -Eo "errors[^]]+" | grep -Eo "\{.+")
         ddns_result="Update failed: "$error_msg
