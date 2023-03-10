@@ -20,9 +20,13 @@ Currently supported DNS service providers:
 You can download the script from the following two url：  
 `https://ddns.03k.org`  
 `https://raw.githubusercontent.com/kkkgo/UE-DDNS/main/ue-ddns.sh`   
-You can run the following command to start :  
+You can run the following command to start :    
+```shell  
+curl -skLo ue-ddns.sh ddns.03k.org
+```  
+If curl not found, you can run:   
 ```shell
-wget --no-check-certificate ddns.03k.org -O ue-ddns.sh
+wget --no-check-certificate https://ddns.03k.org -O ue-ddns.sh
 sh ue-ddns.sh
 ```  
 After the script runs, a wizard will prompt you to choose your DNS service provider and choose IPV4/IPV6:  
