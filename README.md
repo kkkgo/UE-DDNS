@@ -22,10 +22,6 @@ You can download the script from the following two url：
 `https://raw.githubusercontent.com/kkkgo/UE-DDNS/main/ue-ddns.sh`   
 You can run the following command to start :  
 ```shell
-bash <(curl -skL ddns.03k.org)
-```
-If you don't have curl or bash, you can run:  
-```shell
 wget --no-check-certificate ddns.03k.org -O ue-ddns.sh
 sh ue-ddns.sh
 ```  
