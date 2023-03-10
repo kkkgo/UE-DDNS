@@ -103,7 +103,9 @@ DDNS script generation completed!
 /root/myhomeddns.03k.org@cloudflare_IPV4_URL.sh:
 -rwxrwxrwx 1 root root 12K Mar  8 18:57 myhomeddns.03k.org@cloudflare_IPV4_URL.sh
 ```  
-Finally, you'll get a custom DDNS script in the current directory that you can try to `sh xxxx@xxx.sh` to test it. Depending on what DNS service provider you choose and what options you customize, the script looks like this:
+Finally, you'll get a custom DDNS script in the current directory that you can try to `sh xxxx@xxx.sh` to test it.    
+After the script is generated, you can 'rm ue-ddns.sh'.    
+Depending on what DNS service provider you choose and what options you customize, the script looks like this:    
 ```shell
 2023-03-08 23:20:58 CST
 URL IP : 218.56.43.21
