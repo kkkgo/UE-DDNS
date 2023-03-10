@@ -147,7 +147,7 @@ DDNS script generation completed!
 After the script is generated, you can also adjust some custom options within the generated script.(Region from # Customizable option area to # Customizable option end).  
 Custom options：  
 - **PROXY** Set a proxy for the connection API, such as `PROXY="http://192.168.1.100:7890"`
-- **OUT** Set script network traffic to go to which network card, such as OUT="eth0" (Only curl is supported)  
+- **OUT** Set script network traffic to go to which network card, such as `OUT="eth0"` (Only curl is supported)  
 - **CHECKURL** Set the URL used to detect the IP address. The script has built in some websites to get the IP address. When it fails, it will try to get it in turn.The CHECKURL you set will be tried first.    
 - **ValidateCA** verifies the validity of the certificate and is disabled by default.You need to complete the CA certificate yourself for the local environment, for example, most Linux needs to install the ca-certificates package.  
   
