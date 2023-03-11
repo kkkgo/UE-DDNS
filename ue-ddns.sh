@@ -181,9 +181,9 @@ httpDNS() {
 # curlDNS example.com 4/6
 curlDNS() {
     if [ "$2" = "6" ]; then
-        TEST=$(stripIP "$(curl -6kvsL "$1" -m 1 2>&1)" "6") || return 1
+        TEST=$(stripIP "$(curl -6kvsL "$1"":0" -m 1 2>&1)" "6") || return 1
     else
-        TEST=$(stripIP "$(curl -4kvsL "$1" -m 1 2>&1)" "4") || return 1
+        TEST=$(stripIP "$(curl -4kvsL "$1"":0" -m 1 2>&1)" "4") || return 1
     fi
     stripIP "$TEST" "$2" | head -1
     return 0
@@ -192,7 +192,7 @@ curlDNS() {
 
 # wgetDNS example.com 4/6 , inet*-only option only on high version wget.
 wgetDNS() {
-    TEST=$(stripIP "$(wget --spider -T1 "$1" 2>&1)" "$2") || return 1
+    TEST=$(stripIP "$(wget --spider -T1 --tries=1 "$1"":0" 2>&1)" "$2") || return 1
     stripIP "$TEST" "$2" | head -1
     return 0
 }
