@@ -1,0 +1,12 @@
+{
+  "redirects": [
+    {
+      "source": "/",
+      "destination": "/ue-ddns.sh",
+      "statusCode": 302
+    }
+  ],
+  "github": {
+    "silent": true
+  }
+}
