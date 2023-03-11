@@ -104,6 +104,18 @@ nslookupDNS() {
 }
 #func-nslookupDNS
 
+# httpDNS example.com 4/6
+httpDNS() {
+    if [ "$2" = "6" ]; then
+        TEST=$(stripIP "$($(genfetchCMD "http://223.6.6.6/resolve?type=28&name=""$1" noproxy) 2>&1)" "6") || return 1
+    else
+        TEST=$(stripIP "$($(genfetchCMD "http://223.6.6.6/resolve?type=1&name=""$1" noproxy) 2>&1)" "4") || return 1
+    fi
+    stripIP "$TEST" "$2" | tail -1
+    return 0
+}
+#func-httpDNS
+
 # curlDNS example.com 4/6
 curlDNS() {
     if [ "$2" = "6" ]; then
@@ -129,7 +141,7 @@ getDNSIP() {
     if [ -z "$2" ]; then
         IPV="4"
     fi
-    nslookupDNS "$1" "$IPV" || pingDNS "$1" "$IPV" || curlDNS "$1" "$IPV" || wgetDNS "$1" "$IPV" || echo "Get ""$1"" IPV""$IPV"" DNS IP Failed."
+    nslookupDNS "$1" "$IPV" || httpDNS "$1" "$IPV" || pingDNS "$1" "$IPV" || curlDNS "$1" "$IPV" || wgetDNS "$1" "$IPV" || echo "Get ""$1"" IPV""$IPV"" DNS IP Failed."
 }
 #func-getDNSIP
 
