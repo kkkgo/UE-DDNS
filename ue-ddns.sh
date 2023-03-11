@@ -155,11 +155,11 @@ pingDNS() {
 }
 #func-pingDNS
 
-# nslookupDNS example.com 4/6
+# nslookupDNS example.com 4/6 $dnsserver
 nslookupDNS() {
-    if NSTEST=$(nslookup "$1" 114.114.114.114 2>&1) || NSTEST=$(nslookup "$1" 2>&1) || NSTEST=$(nslookup 1.0.0.1 "$1" 2>&1); then
+    if NSTEST=$(nslookup "$1" "$3" 2>&1); then
         TEST=$(stripIP "$NSTEST" "$2") || return 1
-        stripIP "$TEST" "$2" | tail -1
+        stripIP "$TEST" "$2" | grep -v "$3" |tail -1
         return 0
     fi
     return 1
@@ -198,15 +198,35 @@ wgetDNS() {
 }
 #func-wgetDNS
 
-getDNSIP() {
+getDNSIP_local() {
     IPV="$2"
     if [ -z "$2" ]; then
         IPV="4"
     fi
-    getDNS_list="$(nslookupDNS "$1" "$IPV") $(httpDNS "$1" "$IPV") $(pingDNS "$1" "$IPV") $(curlDNS "$1" "$IPV") $(wgetDNS "$1" "$IPV")"
+    getDNS_list="$(pingDNS "$1" "$IPV") $(curlDNS "$1" "$IPV") $(wgetDNS "$1" "$IPV")"
     stripIP "$getDNS_list" "$2"
 }
-#func-getDNSIP
+#func-getDNSIP_local
+
+getDNSIP_resolve_1() {
+    IPV="$2"
+    if [ -z "$2" ]; then
+        IPV="4"
+    fi
+    getDNS_list="$(httpDNS "$1" "$IPV") $(nslookupDNS "$1" "$IPV" "223.5.5.5") $(nslookupDNS "$1" "$IPV" "8.8.8.8")"
+    stripIP "$getDNS_list" "$2"
+}
+#func-getDNSIP_resolve_1
+
+getDNSIP_resolve_2() {
+    IPV="$2"
+    if [ -z "$2" ]; then
+        IPV="4"
+    fi
+    getDNS_list="$(nslookupDNS "$1" "$IPV" "114.114.114.114") $(nslookupDNS "$1" "$IPV" "1.0.0.1") $(nslookupDNS "$1" "$IPV" "119.29.29.29")"
+    stripIP "$getDNS_list" "$2"
+}
+#func-getDNSIP_resolve_2
 
 getURLIP() {
     IPV=$1
@@ -253,20 +273,37 @@ getDEVIP() {
 }
 #func-getDEVIP
 
+ddns_comp_DNS() {
+    ddns_DNSIP_list=$(getDNSIP_local "$ddns_fulldomain" "$ddns_IPV")
+    if echo "$ddns_DNSIP_list" | grep -Eo "[^ ]+" | grep -Eqo "^"$ddns_newIP"$" 2>&1; then
+        echo "IP SAME IN DNS,SKIP UPDATE."
+        exit
+    else
+        ddns_DNSIP_list="$ddns_DNSIP_list"" ""$(getDNSIP_resolve_1 "$ddns_fulldomain" "$ddns_IPV")"
+        if echo "$ddns_DNSIP_list" | grep -Eo "[^ ]+" | grep -Eqo "^"$ddns_newIP"$" 2>&1; then
+            echo "IP SAME IN DNS,SKIP UPDATE."
+            exit
+        else
+        ddns_DNSIP_list="$ddns_DNSIP_list"" ""$(getDNSIP_resolve_2 "$ddns_fulldomain" "$ddns_IPV")"
+            if echo "$ddns_DNSIP_list" | grep -Eo "[^ ]+" | grep -Eqo "^"$ddns_newIP"$" 2>&1; then
+                echo "IP SAME IN DNS,SKIP UPDATE."
+                exit
+            else
+                ddns_DNSIP=$(stripIP "$ddns_DNSIP_list" "$ddns_IPV" | head -1)
+                ddns_DNSIP=$(stripIP "$ddns_DNSIP" "$ddns_IPV") || ddns_DNSIP="Get ""$ddns_fulldomain"" IPV""$ddns_IPV"" DNS IP Failed."
+                echo "DNS IP : ""$ddns_DNSIP"
+            fi
+        fi
+    fi
+}
+#func-ddns_comp_DNS
+
 ddns_check_URL() {
     ddns_URLIP=$(getURLIP "$ddns_IPV")
     if [ "$?" = "0" ]; then
         echo "URL IP : ""$ddns_URLIP"
-        ddns_DNSIP_list=$(getDNSIP "$ddns_fulldomain" "$ddns_IPV")
-        ddns_DNSIP=$(stripIP "$ddns_DNSIP_list" "$ddns_IPV" | head -1)
-        ddns_DNSIP=$(stripIP "$ddns_DNSIP" "$ddns_IPV") || ddns_DNSIP="Get ""$ddns_fulldomain"" IPV""$ddns_IPV"" DNS IP Failed."
-        if echo $ddns_DNSIP_list | grep -Eo "[^ ]+" | grep -Eqo "^"$ddns_URLIP"$" 2>&1; then
-            echo "URL IP SAME IN DNS,SKIP UPDATE."
-            exit
-        else
-            echo "DNS IP : ""$ddns_DNSIP"
-        fi
         ddns_newIP=$ddns_URLIP
+        ddns_comp_DNS
         getIP_"$ddns_provider"
         echo "API IP : ""$ddns_API_IP"
         if [ "$ddns_URLIP" = "$ddns_API_IP" ]; then
@@ -285,16 +322,8 @@ ddns_check_DEV() {
     ddns_DEVIP=$(getDEVIP "$ddns_IPV")
     if [ "$?" = "0" ]; then
         echo "DEV IP : ""$ddns_DEVIP"
-        ddns_DNSIP_list=$(getDNSIP "$ddns_fulldomain" "$ddns_IPV")
-        ddns_DNSIP=$(stripIP "$ddns_DNSIP_list" "$ddns_IPV" | head -1)
-        ddns_DNSIP=$(stripIP "$ddns_DNSIP" "$ddns_IPV") || ddns_DNSIP="Get ""$ddns_fulldomain"" IPV""$ddns_IPV"" DNS IP Failed."
-        if echo $ddns_DNSIP_list | grep -Eo "[^ ]+" | grep -Eqo "^"$ddns_DEVIP"$" 2>&1; then
-            echo "DEV IP SAME IN DNS,SKIP UPDATE."
-            exit
-        else
-            echo "DNS IP : ""$ddns_DNSIP"
-        fi
         ddns_newIP=$ddns_DEVIP
+        ddns_comp_DNS
         getIP_"$ddns_provider"
         echo "API IP : ""$ddns_API_IP"
         if [ "$ddns_DEVIP" = "$ddns_API_IP" ]; then
@@ -413,7 +442,10 @@ gen_ddns_script() {
         export_func nslookupDNS >>"$ddns_script_filename"
         export_func curlDNS >>"$ddns_script_filename"
         export_func wgetDNS >>"$ddns_script_filename"
-        export_func getDNSIP >>"$ddns_script_filename"
+        export_func getDNSIP_local >>"$ddns_script_filename"
+        export_func getDNSIP_resolve_1 >>"$ddns_script_filename"
+        export_func getDNSIP_resolve_2 >>"$ddns_script_filename"
+        export_func ddns_comp_DNS >>"$ddns_script_filename"
         export_func genfetchCMD >>"$ddns_script_filename"
         export_func httpDNS >>"$ddns_script_filename"
         export_func "fetch_""$ddns_provider" >>"$ddns_script_filename"
