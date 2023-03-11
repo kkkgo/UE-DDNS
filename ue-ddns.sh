@@ -81,70 +81,6 @@ stripIP() {
 }
 #func-stripIP
 
-# pingDNS example.com 4/6
-pingDNS() {
-    if [ "$2" = "6" ]; then
-        TEST=$(stripIP "$(ping -6 -c1 -W1 "$1" 2>&1)" "6") || return 1
-    else
-        TEST=$(stripIP "$(ping -4 -c1 -W1 "$1" 2>&1)" "4") || return 1
-    fi
-    stripIP "$TEST" "$2" | head -1
-    return 0
-}
-#func-pingDNS
-
-# nslookupDNS example.com 4/6
-nslookupDNS() {
-    if NSTEST=$(nslookup "$1" 223.5.5.5 2>&1) || NSTEST=$(nslookup "$1" 2>&1) || NSTEST=$(nslookup 1.0.0.1 "$1" 2>&1); then
-        TEST=$(stripIP "$NSTEST" "$2") || return 1
-        stripIP "$TEST" "$2" | tail -1
-        return 0
-    fi
-    return 1
-}
-#func-nslookupDNS
-
-# httpDNS example.com 4/6
-httpDNS() {
-    if [ "$2" = "6" ]; then
-        TEST=$(stripIP "$($(genfetchCMD "http://223.6.6.6/resolve?type=28&name=""$1" noproxy) 2>&1)" "6") || return 1
-    else
-        TEST=$(stripIP "$($(genfetchCMD "http://223.6.6.6/resolve?type=1&name=""$1" noproxy) 2>&1)" "4") || return 1
-    fi
-    stripIP "$TEST" "$2" | tail -1
-    return 0
-}
-#func-httpDNS
-
-# curlDNS example.com 4/6
-curlDNS() {
-    if [ "$2" = "6" ]; then
-        TEST=$(stripIP "$(curl -6kvsL "$1" -m 1 2>&1)" "6") || return 1
-    else
-        TEST=$(stripIP "$(curl -4kvsL "$1" -m 1 2>&1)" "4") || return 1
-    fi
-    stripIP "$TEST" "$2" | head -1
-    return 0
-}
-#func-curlDNS
-
-# wgetDNS example.com 4/6 , inet*-only option only on high version wget.
-wgetDNS() {
-    TEST=$(stripIP "$(wget --spider -T1 "$1" 2>&1)" "$2") || return 1
-    stripIP "$TEST" "$2" | head -1
-    return 0
-}
-#func-wgetDNS
-
-getDNSIP() {
-    IPV="$2"
-    if [ -z "$2" ]; then
-        IPV="4"
-    fi
-    nslookupDNS "$1" "$IPV" || httpDNS "$1" "$IPV" || pingDNS "$1" "$IPV" || curlDNS "$1" "$IPV" || wgetDNS "$1" "$IPV" || echo "Get ""$1"" IPV""$IPV"" DNS IP Failed."
-}
-#func-getDNSIP
-
 # genfetchCMD $URL $useProxy $fetchIPV
 # postMethod=;postdata=;fetchCMD http://blog.03k.org useProxy 4/6/0
 genfetchCMD() {
@@ -207,6 +143,71 @@ genfetchCMD() {
 }
 #func-genfetchCMD
 
+# pingDNS example.com 4/6
+pingDNS() {
+    if [ "$2" = "6" ]; then
+        TEST=$(stripIP "$(ping -6 -c1 -W1 "$1" 2>&1)" "6") || return 1
+    else
+        TEST=$(stripIP "$(ping -4 -c1 -W1 "$1" 2>&1)" "4") || return 1
+    fi
+    stripIP "$TEST" "$2" | head -1
+    return 0
+}
+#func-pingDNS
+
+# nslookupDNS example.com 4/6
+nslookupDNS() {
+    if NSTEST=$(nslookup "$1" 114.114.114.114 2>&1) || NSTEST=$(nslookup "$1" 2>&1) || NSTEST=$(nslookup 1.0.0.1 "$1" 2>&1); then
+        TEST=$(stripIP "$NSTEST" "$2") || return 1
+        stripIP "$TEST" "$2" | tail -1
+        return 0
+    fi
+    return 1
+}
+#func-nslookupDNS
+
+# httpDNS example.com 4/6
+httpDNS() {
+    if [ "$2" = "6" ]; then
+        TEST=$(stripIP "$($(genfetchCMD "http://223.6.6.6/resolve?type=28&name=""$1" noproxy) 2>&1)" "6") || return 1
+    else
+        TEST=$(stripIP "$($(genfetchCMD "http://223.6.6.6/resolve?type=1&name=""$1" noproxy) 2>&1)" "4") || return 1
+    fi
+    stripIP "$TEST" "$2" | tail -1
+    return 0
+}
+#func-httpDNS
+
+# curlDNS example.com 4/6
+curlDNS() {
+    if [ "$2" = "6" ]; then
+        TEST=$(stripIP "$(curl -6kvsL "$1" -m 1 2>&1)" "6") || return 1
+    else
+        TEST=$(stripIP "$(curl -4kvsL "$1" -m 1 2>&1)" "4") || return 1
+    fi
+    stripIP "$TEST" "$2" | head -1
+    return 0
+}
+#func-curlDNS
+
+# wgetDNS example.com 4/6 , inet*-only option only on high version wget.
+wgetDNS() {
+    TEST=$(stripIP "$(wget --spider -T1 "$1" 2>&1)" "$2") || return 1
+    stripIP "$TEST" "$2" | head -1
+    return 0
+}
+#func-wgetDNS
+
+getDNSIP() {
+    IPV="$2"
+    if [ -z "$2" ]; then
+        IPV="4"
+    fi
+    getDNS_list="$(nslookupDNS "$1" "$IPV") $(httpDNS "$1" "$IPV") $(pingDNS "$1" "$IPV") $(curlDNS "$1" "$IPV") $(wgetDNS "$1" "$IPV")"
+    stripIP "$getDNS_list" "$2"
+}
+#func-getDNSIP
+
 getURLIP() {
     IPV=$1
     if [ -z "$1" ]; then
@@ -223,6 +224,7 @@ getURLIP() {
         stripIP "$TESTURLIP" "$IPV" | tail -1
         return 0
     done
+    echo "Get ""$ddns_fulldomain"" IPV""$IPV"" URL IP Failed."
     return 1
 }
 #func-getURLIP
@@ -253,18 +255,25 @@ getDEVIP() {
 
 ddns_check_URL() {
     ddns_URLIP=$(getURLIP "$ddns_IPV")
-    echo "URL IP : ""$ddns_URLIP"
-    ddns_DNSIP=$(getDNSIP "$ddns_fulldomain" "$ddns_IPV")
-    echo "DNS IP : ""$ddns_DNSIP"
-    if [ "$ddns_URLIP" = "$ddns_DNSIP" ]; then
-        echo "URL IP SAME IN DNS,SKIP UPDATE."
-        exit
-    fi
-    ddns_newIP=$ddns_URLIP
-    getIP_"$ddns_provider"
-    echo "API IP : ""$ddns_API_IP"
-    if [ "$ddns_URLIP" = "$ddns_API_IP" ]; then
-        echo "URL IP SAME IN API,SKIP UPDATE."
+    if [ "$?" = "0" ]; then
+        echo "URL IP : ""$ddns_URLIP"
+        ddns_DNSIP_list=$(getDNSIP "$ddns_fulldomain" "$ddns_IPV")
+        ddns_DNSIP=$(stripIP "$ddns_DNSIP_list" "$ddns_IPV" | head -1) || ddns_DNSIP="Get ""$ddns_fulldomain"" IPV""$ddns_IPV"" DNS IP Failed."
+        if echo $ddns_DNSIP_list | grep -Eqo "^"$ddns_URLIP"$" 2>&1; then
+            echo "URL IP SAME IN DNS,SKIP UPDATE."
+            exit
+        else
+            echo "DNS IP : ""$ddns_DNSIP"
+        fi
+        ddns_newIP=$ddns_URLIP
+        getIP_"$ddns_provider"
+        echo "API IP : ""$ddns_API_IP"
+        if [ "$ddns_URLIP" = "$ddns_API_IP" ]; then
+            echo "URL IP SAME IN API,SKIP UPDATE."
+            exit
+        fi
+    else
+        echo $ddns_URLIP
         exit
     fi
 }
@@ -273,18 +282,25 @@ ddns_check_URL() {
 ddns_check_DEV() {
     echo "DEV : ""$DEV"
     ddns_DEVIP=$(getDEVIP "$ddns_IPV")
-    echo "DEV IP : ""$ddns_DEVIP"
-    ddns_DNSIP=$(getDNSIP "$ddns_fulldomain" "$ddns_IPV")
-    echo "DNS IP : ""$ddns_DNSIP"
-    if [ "$ddns_DEVIP" = "$ddns_DNSIP" ]; then
-        echo "DEV IP SAME IN DNS,SKIP UPDATE."
-        exit
-    fi
-    ddns_newIP=$ddns_DEVIP
-    getIP_"$ddns_provider"
-    echo "API IP : ""$ddns_API_IP"
-    if [ "$ddns_DEVIP" = "$ddns_API_IP" ]; then
-        echo "DEV IP SAME IN API,SKIP UPDATE."
+    if [ "$?" = "0" ]; then
+        echo "DEV IP : ""$ddns_DEVIP"
+        ddns_DNSIP_list=$(getDNSIP "$ddns_fulldomain" "$ddns_IPV")
+        ddns_DNSIP=$(stripIP "$ddns_DNSIP_list" "$ddns_IPV" | head -1) || ddns_DNSIP="Get ""$ddns_fulldomain"" IPV""$ddns_IPV"" DNS IP Failed."
+        if echo $ddns_DNSIP_list | grep -Eqo "^"$ddns_DEVIP"$"; then
+            echo "DEV IP SAME IN DNS,SKIP UPDATE."
+            exit
+        else
+            echo "DNS IP : ""$ddns_DNSIP"
+        fi
+        ddns_newIP=$ddns_DEVIP
+        getIP_"$ddns_provider"
+        echo "API IP : ""$ddns_API_IP"
+        if [ "$ddns_DEVIP" = "$ddns_API_IP" ]; then
+            echo "DEV IP SAME IN API,SKIP UPDATE."
+            exit
+        fi
+    else
+        echo $ddns_DEVIP
         exit
     fi
 }
@@ -397,6 +413,7 @@ gen_ddns_script() {
         export_func wgetDNS >>"$ddns_script_filename"
         export_func getDNSIP >>"$ddns_script_filename"
         export_func genfetchCMD >>"$ddns_script_filename"
+        export_func httpDNS >>"$ddns_script_filename"
         export_func "fetch_""$ddns_provider" >>"$ddns_script_filename"
         export_func "getIP_""$ddns_provider" >>"$ddns_script_filename"
         if [ "$ddns_IPmode" = "2" ]; then
