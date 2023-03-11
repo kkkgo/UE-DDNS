@@ -159,7 +159,7 @@ pingDNS() {
 nslookupDNS() {
     if NSTEST=$(nslookup "$1" "$3" 2>&1); then
         TEST=$(stripIP "$NSTEST" "$2") || return 1
-        stripIP "$TEST" "$2" | grep -v "$3" |tail -1
+        stripIP "$TEST" "$2" | grep -v "$3" | tail -1
         return 0
     fi
     return 1
@@ -284,7 +284,7 @@ ddns_comp_DNS() {
             echo "IP SAME IN DNS,SKIP UPDATE."
             exit
         else
-        ddns_DNSIP_list="$ddns_DNSIP_list"" ""$(getDNSIP_resolve_2 "$ddns_fulldomain" "$ddns_IPV")"
+            ddns_DNSIP_list="$ddns_DNSIP_list"" ""$(getDNSIP_resolve_2 "$ddns_fulldomain" "$ddns_IPV")"
             if echo "$ddns_DNSIP_list" | grep -Eo "[^ ]+" | grep -Eqo "^"$ddns_newIP"$" 2>&1; then
                 echo "IP SAME IN DNS,SKIP UPDATE."
                 exit
