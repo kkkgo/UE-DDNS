@@ -258,8 +258,9 @@ ddns_check_URL() {
     if [ "$?" = "0" ]; then
         echo "URL IP : ""$ddns_URLIP"
         ddns_DNSIP_list=$(getDNSIP "$ddns_fulldomain" "$ddns_IPV")
-        ddns_DNSIP=$(stripIP "$ddns_DNSIP_list" "$ddns_IPV" | head -1) || ddns_DNSIP="Get ""$ddns_fulldomain"" IPV""$ddns_IPV"" DNS IP Failed."
-        if echo $ddns_DNSIP_list | grep -Eqo "^"$ddns_URLIP"$" 2>&1; then
+        ddns_DNSIP=$(stripIP "$ddns_DNSIP_list" "$ddns_IPV" | head -1)
+        ddns_DNSIP=$(stripIP "$ddns_DNSIP" "$ddns_IPV") || ddns_DNSIP="Get ""$ddns_fulldomain"" IPV""$ddns_IPV"" DNS IP Failed."
+        if echo $ddns_DNSIP_list | grep -Eo "[^ ]+" | grep -Eqo "^"$ddns_URLIP"$" 2>&1; then
             echo "URL IP SAME IN DNS,SKIP UPDATE."
             exit
         else
@@ -285,8 +286,9 @@ ddns_check_DEV() {
     if [ "$?" = "0" ]; then
         echo "DEV IP : ""$ddns_DEVIP"
         ddns_DNSIP_list=$(getDNSIP "$ddns_fulldomain" "$ddns_IPV")
-        ddns_DNSIP=$(stripIP "$ddns_DNSIP_list" "$ddns_IPV" | head -1) || ddns_DNSIP="Get ""$ddns_fulldomain"" IPV""$ddns_IPV"" DNS IP Failed."
-        if echo $ddns_DNSIP_list | grep -Eqo "^"$ddns_DEVIP"$"; then
+        ddns_DNSIP=$(stripIP "$ddns_DNSIP_list" "$ddns_IPV" | head -1)
+        ddns_DNSIP=$(stripIP "$ddns_DNSIP" "$ddns_IPV") || ddns_DNSIP="Get ""$ddns_fulldomain"" IPV""$ddns_IPV"" DNS IP Failed."
+        if echo $ddns_DNSIP_list | grep -Eo "[^ ]+" | grep -Eqo "^"$ddns_DEVIP"$" 2>&1; then
             echo "DEV IP SAME IN DNS,SKIP UPDATE."
             exit
         else
