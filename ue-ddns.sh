@@ -682,6 +682,7 @@ addsub_dnspod() {
     else
         dnspod_record_line="默认"
     fi
+    ddns_record_domain=$ddns_newsubdomain
 }
 
 guide_dnspod() {
@@ -787,9 +788,8 @@ addsub_godaddy() {
     if echo "$addsub_godaddy_result" | grep -q '"code"'; then
         echo "Creat new subdomain failed.""$(echo "$addsub_godaddy_result" | grep -Eo '"message":"[^}]+"' | head -1)"
         exit
-    else
-        ddns_record_domain=$ddns_newsubdomain
     fi
+    ddns_record_domain=$ddns_newsubdomain
 }
 
 guide_godaddy() {
