@@ -29,22 +29,28 @@ ValidateCA=0
 # ntfy is a simple HTTP-based pub-sub notification service.
 # https://ntfy.sh/
 # ddns_ntfy_url="http://ntfy.sh/yourtopic"
+ddns_ntfy_url=""
 
 # Bark is an iOS App which allows you to push customed notifications to your iPhone.
 # https://github.com/Finb/bark-server
 # ddns_bark_url="https://api.day.app/yourkey"
+ddns_bark_url=""
 
 # sct is a message push platform(wechat).
 # https://sct.ftqq.com/
 # ddns_sct_url="https://sctapi.ftqq.com/yourkey.send"
+ddns_sct_url=""
 
 # pushplus is a message push platform(wechat).
 # https://www.pushplus.plus/
 # ddns_pushplus_url="http://www.pushplus.plus/send?token=yourkey"
+ddns_pushplus_url=""
 
 # dingtalk group robot push.
 # https://open.dingtalk.com/document/robots/custom-robot-access/
 # ddns_dingtalk_url="https://oapi.dingtalk.com/robot/send?access_token=yourtoken"
+ddns_dingtalk_url=""
+
 #Customizable option end
 
 versionUA="github.com/kkkgo/UE-DDNS"
