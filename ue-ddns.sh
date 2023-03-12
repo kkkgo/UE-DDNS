@@ -630,8 +630,8 @@ ddns_update_cloudflare() {
         ddns_result="Update OK: "$(echo "$test_ddns_result" | grep -Eo '"type":"[^}]+ttl":[ 0-9]+' | head -1)
     else
         error_msg=$(echo "$test_ddns_result" | grep -Eo "errors[^]]+" | grep -Eo "\{.+")
-        ddns_result="Update failed: ""$error_msg"
-        ddns_newIP=$error_msg
+        ddns_result="Update_failed:""$error_msg"
+        ddns_newIP=$ddns_result
     fi
 }
 #func-ddns_update_cloudflare
@@ -716,8 +716,8 @@ ddns_update_dnspod() {
     else
         error_msg=$(echo "$test_ddns_result" | grep -Eo '"message":"[^"]+' | grep -Eo '[^"]+' | tail -1)
         error_code=$(echo "$test_ddns_result" | grep -Eo '"code":"[0-9]+"')
-        ddns_result="Update failed: ""$error_code"" : ""$error_msg"
-        ddns_newIP="$error_code"":""$error_msg"
+        ddns_result="Update_failed:""$error_code"":""$error_msg"
+        ddns_newIP=$ddns_result
     fi
 }
 #func-ddns_update_dnspod
@@ -830,8 +830,8 @@ ddns_update_godaddy() {
     postMethod=""
     if echo "$test_ddns_result" | grep -q '"code"'; then
         error_msg=$(echo "$test_ddns_result" | grep -Eo '"message":"[^}]+"' | head -1)
-        ddns_result="Update failed: "$error_msg
-        ddns_newIP=$error_msg
+        ddns_result="Update_failed:"$error_msg
+        ddns_newIP=$ddns_result
     else
         ddns_result="Update OK."$test_ddns_result
     fi
