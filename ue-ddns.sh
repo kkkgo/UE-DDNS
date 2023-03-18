@@ -275,17 +275,17 @@ getDEVIP() {
 
 ddns_comp_DNS() {
     ddns_DNSIP_list=$(getDNSIP_local "$ddns_fulldomain" "$ddns_IPV")
-    if echo "$ddns_DNSIP_list" | grep -Eo "[^ ]+" | grep -Eqo "^"$ddns_newIP"$" 2>&1; then
+    if echo "$ddns_DNSIP_list" | grep -Eo "[^ ]+" | grep -Eqo "^""$ddns_newIP""$" 2>&1; then
         echo "IP SAME IN DNS,SKIP UPDATE."
         exit
     else
         ddns_DNSIP_list="$ddns_DNSIP_list"" ""$(getDNSIP_resolve_1 "$ddns_fulldomain" "$ddns_IPV")"
-        if echo "$ddns_DNSIP_list" | grep -Eo "[^ ]+" | grep -Eqo "^"$ddns_newIP"$" 2>&1; then
+        if echo "$ddns_DNSIP_list" | grep -Eo "[^ ]+" | grep -Eqo "^""$ddns_newIP""$" 2>&1; then
             echo "IP SAME IN DNS,SKIP UPDATE."
             exit
         else
             ddns_DNSIP_list="$ddns_DNSIP_list"" ""$(getDNSIP_resolve_2 "$ddns_fulldomain" "$ddns_IPV")"
-            if echo "$ddns_DNSIP_list" | grep -Eo "[^ ]+" | grep -Eqo "^"$ddns_newIP"$" 2>&1; then
+            if echo "$ddns_DNSIP_list" | grep -Eo "[^ ]+" | grep -Eqo "^""$ddns_newIP""$" 2>&1; then
                 echo "IP SAME IN DNS,SKIP UPDATE."
                 exit
             else
@@ -311,7 +311,7 @@ ddns_check_URL() {
             exit
         fi
     else
-        echo $ddns_URLIP
+        echo "$ddns_URLIP"
         exit
     fi
 }
@@ -331,7 +331,7 @@ ddns_check_DEV() {
             exit
         fi
     else
-        echo $ddns_DEVIP
+        echo "$ddns_DEVIP"
         exit
     fi
 }
