@@ -65,8 +65,8 @@ date +"%Y-%m-%d %H:%M:%S %Z"
 
 export_func() {
     func_name=$1
-    func_start=$(cat "$0" | grep -n "$func_name" | head -1 | grep -Eo "^[0-9]+")
-    func_end=$(cat "$0" | grep -n "func-""$func_name" | head -1 | grep -Eo "^[0-9]+")
+    func_start=$(grep -n "$func_name" "$0"| head -1 | grep -Eo "^[0-9]+")
+    func_end=$(grep -n "func-""$func_name" "$0"| head -1 | grep -Eo "^[0-9]+")
     sed -n "$func_start","$func_end"p "$0"
 }
 
