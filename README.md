@@ -4,7 +4,7 @@
 UE-DDNS is an embedded POSIX shell DDNS script that is designed with a modular and minimalist approach to dependencies and guided design.
 - Supports both IPV4 and IPV6, and can obtain dynamic IP from URL or network interface
 - Compatible with most Unix platforms, including some embedded devices with only busybox, and relies on fewer commands as much as possible
-- Users only need to provide API KEY, and the rest are multiple-choice questions, directly generating custom scripts
+- Users only need to provide API Tokens, and the rest are multiple-choice questions, directly generating custom scripts
 - New domain names can be added directly in the wizard, one step at a time
 - Can set proxy, set traffic to go through a specified network interface, and automatically detect openwrt installation support
 - Strict IP comparison is performed to comply with API calling specifications and avoid submitting duplicate IP update requests
@@ -46,7 +46,7 @@ cloudflare DDNS:
 [2] IPV6 DDNS
 IPV4/IPV6 DDNS?[1]:1
 ```
-Next, according to the DNS service provider you choose, you need to provide the corresponding API KEY, and the wizard will give a url help to apply for API KEY. If you have more than one domain name, you will see the main domain name selection list after entering the key, followed by the sub-domain name selection list. The display effect depends on the API of the DNS service provider.      
+Next, according to the DNS service provider you choose, you need to provide the corresponding API Tokens, and the wizard will give a url help to apply for API Tokens. If you have more than one domain name, you will see the main domain name selection list after entering the API Tokens, followed by the sub-domain name selection list. The display effect depends on the API of the DNS service provider.      
 ```shell
 [help] https://dash.cloudflare.com/profile/api-tokens
 Your cloudflare API TOKEN:***************************
