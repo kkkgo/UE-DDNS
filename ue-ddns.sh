@@ -150,7 +150,7 @@ pingDNS() {
     else
         TEST=$(stripIP "$(ping -4 -c1 -W1 "$1" 2>&1)" "4") || return 1
     fi
-    stripIP "$TEST" "$2" | head -1
+    stripIP "$TEST" "$2" | tail -1
     return 0
 }
 #func-pingDNS
