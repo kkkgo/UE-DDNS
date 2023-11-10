@@ -65,8 +65,8 @@ date +"%Y-%m-%d %H:%M:%S %Z"
 
 export_func() {
     func_name=$1
-    func_start=$(grep -n "$func_name" "$0"| head -1 | grep -Eo "^[0-9]+")
-    func_end=$(grep -n "func-""$func_name" "$0"| head -1 | grep -Eo "^[0-9]+")
+    func_start=$(grep -n "$func_name" "$0" | head -1 | grep -Eo "^[0-9]+")
+    func_end=$(grep -n "func-""$func_name" "$0" | head -1 | grep -Eo "^[0-9]+")
     sed -n "$func_start","$func_end"p "$0"
 }
 
@@ -264,7 +264,8 @@ getDEVIP() {
         echo "Check DEV ""$DEV"": failed."
         return 1
     fi
-    TESTDEVIP=$(stripIP "$TESTDEV" "$IPV") || getdevtest=1
+    TESTDEV_SORT=$(echo "$TESTDEV" | grep -v "etach")$TESTDEV
+    TESTDEVIP=$(stripIP "$TESTDEV_SORT" "$IPV") || getdevtest=1
     if [ -n "$getdevtest" ]; then
         echo "Get ""$DEV"" IPV""$IPV"" IP failed."
         return 1
