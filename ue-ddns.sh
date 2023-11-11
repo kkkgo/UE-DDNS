@@ -259,7 +259,7 @@ getDEVIP() {
         exit
     fi
     getdevtest=""
-    TESTDEV=$(ip addr show "$DEV" 2>&1) || TESTDEV=$(ifconfig "$DEV" 2>&1) || getdevtest=1
+    TESTDEV=$(ifconfig "$DEV" 2>&1) || TESTDEV=$(ip addr show "$DEV" 2>&1) || getdevtest=1
     if [ -n "$getdevtest" ]; then
         echo "Check DEV ""$DEV"": failed."
         return 1
