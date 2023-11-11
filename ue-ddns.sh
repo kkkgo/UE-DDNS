@@ -233,7 +233,7 @@ getURLIP() {
     if [ -z "$1" ]; then
         IPV="4"
     fi
-    TESTURLS="$CHECKURL http://ipsu.03k.org http://test.ipw.cn https://cf-ns.com/cdn-cgi/trace https://www.cloudflare.com/cdn-cgi/trace http://ip.gs http://ident.me/ http://4.ipw.cn/ http://6.ipw.cn/ http://checkip.synology.com/ http://checkipv6.synology.com/ https://v4.ident.me/ https://v6.ident.me/ https://1.0.0.1/cdn-cgi/trace https://[2606:4700:4700::1111]/cdn-cgi/trace"
+    TESTURLS="$CHECKURL http://ipsu.03k.org/cdn-cgi/trace http://test.ipw.cn https://cf-ns.com/cdn-cgi/trace https://www.cloudflare.com/cdn-cgi/trace http://ip.gs http://ident.me/ http://4.ipw.cn/ http://6.ipw.cn/ http://checkip.synology.com/ http://checkipv6.synology.com/ https://v4.ident.me/ https://v6.ident.me/ https://1.0.0.1/cdn-cgi/trace https://[2606:4700:4700::1111]/cdn-cgi/trace"
     TESTLIST=$(echo "$TESTURLS" | grep -Eo "http[^ ]+")
     countTESTLIST=$(echo "$TESTLIST" | grep -Eo "http[^ ]+" | grep -c "")
     i=0
