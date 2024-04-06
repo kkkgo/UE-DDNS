@@ -623,7 +623,7 @@ getIP_cloudflare() {
 
 ddns_update_cloudflare() {
     postMethod="PUT"
-    postData="{\"type\":\"""$ddns_IPVType""\",\"name\":\"""$ddns_record_domain""\",\"content\":\"""$ddns_newIP""\",\"ttl\":1,\"proxiable\":true,\"proxied\":""$cloudflare_cdn""}"
+    postData="{\"type\":\"""$ddns_IPVType""\",\"name\":\"""$ddns_record_domain""\",\"content\":\"""$ddns_newIP""\",\"ttl\":60,\"proxiable\":true,\"proxied\":""$cloudflare_cdn""}"
     test_ddns_result=$(fetch_cloudflare "$cloudflare_zoneid"/dns_records/"$cloudflare_record_id")
     postData=""
     postMethod=""
@@ -638,7 +638,7 @@ ddns_update_cloudflare() {
 #func-ddns_update_cloudflare
 
 addsub_cloudflare() {
-    postData="{\"type\":\"${ddns_IPVType}\",\"name\":\"""$ddns_newsubdomain"".""$ddns_main_domain""\",\"content\":\"""$new_initIP""\",\"ttl\":1,\"proxied\":false}"
+    postData="{\"type\":\"${ddns_IPVType}\",\"name\":\"""$ddns_newsubdomain"".""$ddns_main_domain""\",\"content\":\"""$new_initIP""\",\"ttl\":60,\"proxied\":false}"
     cloudflare_record_id=$(fetch_cloudflare "$cloudflare_zoneid"/dns_records | grep -Eo '"id":"[0-9a-z]{32}' | grep -Eo "[0-9a-z]{32}")
     postData=""
     if [ -z "$cloudflare_record_id" ]; then
