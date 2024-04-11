@@ -614,16 +614,21 @@ fetch_cloudflare() {
 getIP_cloudflare() {
     test_getIP_cloudflare=$(fetch_cloudflare "$cloudflare_zoneid"/dns_records/"$cloudflare_record_id")
     ddns_API_IP="Get ""$ddns_fulldomain"" IPV""$ddns_IPV"" API IP Failed."
+    export ddns_ttl=60
     if echo "$test_getIP_cloudflare" | grep -qEo 'success":true'; then
         test_API_IP=$(stripIP "$(echo "$test_getIP_cloudflare" | grep -Eo '"type":"'"$ddns_IPVType"'","content":"[^"]+' | grep -Eo '[^"]+' | tail -1)" "$ddns_IPV") || return 1
         ddns_API_IP=$test_API_IP
+        current_ttl=$(echo "$test_getIP_cloudflare" | grep -Eo "\"ttl\":[\"0-9]+" | grep -Eo "[0-9]+" | head -1)
+        if [ "$current_ttl" -gt 29 ] && [ "$current_ttl" -lt 60 ]; then
+            export ddns_ttl=30
+        fi
     fi
 }
 #func-getIP_cloudflare
 
 ddns_update_cloudflare() {
     postMethod="PUT"
-    postData="{\"type\":\"""$ddns_IPVType""\",\"name\":\"""$ddns_record_domain""\",\"content\":\"""$ddns_newIP""\",\"ttl\":1,\"proxiable\":true,\"proxied\":""$cloudflare_cdn""}"
+    postData="{\"type\":\"""$ddns_IPVType""\",\"name\":\"""$ddns_record_domain""\",\"content\":\"""$ddns_newIP""\",\"ttl\":""$ddns_ttl"",\"proxiable\":true,\"proxied\":""$cloudflare_cdn""}"
     test_ddns_result=$(fetch_cloudflare "$cloudflare_zoneid"/dns_records/"$cloudflare_record_id")
     postData=""
     postMethod=""
@@ -638,7 +643,7 @@ ddns_update_cloudflare() {
 #func-ddns_update_cloudflare
 
 addsub_cloudflare() {
-    postData="{\"type\":\"${ddns_IPVType}\",\"name\":\"""$ddns_newsubdomain"".""$ddns_main_domain""\",\"content\":\"""$new_initIP""\",\"ttl\":1,\"proxied\":false}"
+    postData="{\"type\":\"${ddns_IPVType}\",\"name\":\"""$ddns_newsubdomain"".""$ddns_main_domain""\",\"content\":\"""$new_initIP""\",\"ttl\":60,\"proxied\":false}"
     cloudflare_record_id=$(fetch_cloudflare "$cloudflare_zoneid"/dns_records | grep -Eo '"id":"[0-9a-z]{32}' | grep -Eo "[0-9a-z]{32}")
     postData=""
     if [ -z "$cloudflare_record_id" ]; then
@@ -706,9 +711,9 @@ ddns_update_dnspod() {
         dnspod_record_line="default"
     fi
     if [ "$dnspod_type" = "com" ]; then
-        postData="domain_id=""$dnspod_domain_id""&record_id=""$dnspod_record_id""&record_line=""$dnspod_record_line""&value=""$ddns_newIP""&sub_domain=""$ddns_record_domain"
+        postData="domain_id=""$dnspod_domain_id""&record_id=""$dnspod_record_id""&record_line=""$dnspod_record_line""&value=""$ddns_newIP""&sub_domain=""$ddns_record_domain""&ttl=""$ddns_ttl"
     else
-        postData="domain_id=""$dnspod_domain_id""&record_id=""$dnspod_record_id""&record_line_id=""$dnspod_record_lineid""&value=""$ddns_newIP""&sub_domain=""$ddns_record_domain"
+        postData="domain_id=""$dnspod_domain_id""&record_id=""$dnspod_record_id""&record_line_id=""$dnspod_record_lineid""&value=""$ddns_newIP""&sub_domain=""$ddns_record_domain""&ttl=""$ddns_ttl"
     fi
     test_ddns_result=$(fetch_dnspod Record.Ddns)
     postData=""
@@ -728,9 +733,14 @@ getIP_dnspod() {
     test_getIP_dnspod=$(fetch_dnspod Record.Info)
     postData=""
     ddns_API_IP="Get ""$ddns_fulldomain"" IPV""$ddns_IPV"" API IP Failed."
+    export ddns_ttl=600
     if echo "$test_getIP_dnspod" | grep -qEo '"code":"1"'; then
         test_API_IP=$(stripIP "$(echo "$test_getIP_dnspod" | grep -Eo '"value":"[^"]+' | grep -Eo '[^"]+' | tail -1)" "$ddns_IPV") || return 1
         ddns_API_IP=$test_API_IP
+        current_ttl=$(echo "$test_getIP_dnspod" | grep -Eo "\"ttl\":[\"0-9]+" | grep -Eo "[0-9]+" | head -1)
+        if [ "$current_ttl" -lt 600 ]; then
+            export ddns_ttl="$current_ttl"
+        fi
     fi
 }
 #func-getIP_dnspod
