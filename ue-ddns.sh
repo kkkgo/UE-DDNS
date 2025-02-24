@@ -665,7 +665,10 @@ guide_cloudflare() {
     menu_domain
     cloudflare_zoneid=$(echo "$cloudflare_zoneid_list" | grep -Eo '[0-9a-z]{32}' | sed -n "$ddns_main_domain_index"p)
     # Select sub domain
-    cloudflare_record_list=$(fetch_cloudflare "$cloudflare_zoneid"/dns_records | grep -Eo '"id":"[0-9a-z]{32}","name":"[^"]+","type":"'"$ddns_IPVType"'","content":"[^"]+')
+    cloudflare_record_list_raw=$(fetch_cloudflare "$cloudflare_zoneid"/dns_records)
+    cloudflare_record_list0=$(echo "$cloudflare_record_list_raw" | grep -Eo '"id":"[0-9a-z]{32}","zone_id":"'"$cloudflare_zoneid"'","zone_name":"'"$ddns_main_domain"'","name":"[^"]+","type":"'"$ddns_IPVType"'","content":"[^"]+')
+    cloudflare_record_list1=$(echo "$cloudflare_record_list_raw" | grep -Eo '"id":"[0-9a-z]{32}","name":"[^"]+","type":"'"$ddns_IPVType"'","content":"[^"]+')
+    cloudflare_record_list=$(echo "$cloudflare_record_list0" " " "$cloudflare_record_list1" | grep name | sort -u)
     cloudflare_record_list_id=$(echo "$cloudflare_record_list" | grep -Eo '"id":"[a-z0-9]{32}' | grep -Eo '[a-z0-9]{32}')
     ddns_subdomain_list_name=$(echo "$cloudflare_record_list" | grep -Eo '"name":"[^"]+' | sed 's/"name":"//g' | grep -Eo '[^"]+')
     ddns_subdomain_list_value=$(echo "$cloudflare_record_list" | grep -Eo '"content":"[^"]+' | sed 's/"content":"//g')
